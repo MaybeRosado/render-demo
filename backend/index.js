@@ -1,6 +1,21 @@
+require('dotenv').config()
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const mongoose = require('mongoose')
+const Note = require('./models/note')
+const password = process.argv[2]
+
+
+mongoose.set('strictQuery', false)
+mongoose.connect(url)
+
+const noteSchema = new mongoose.Schema({
+  content: String, 
+  important: Boolean
+})
+
+const Note = mongoose.model('Note', noteSchema)
 
 app.use(cors());
 app.use(express.json());
@@ -29,7 +44,9 @@ app.get('/', (request, response )=> {
 });
 
 app.get('/api/notes', (request, response) => {
-    response.json(notes);
+    Note.find({}).then(notes => {
+      response.json(notes)
+    })
 })
 
 app.get('/api/notes/:id', (request, response) => {
@@ -46,7 +63,7 @@ app.get('/api/notes/:id', (request, response) => {
 
 app.delete('/api/notes/:id', (request, response) => {
   const id = Number(request.params.id);
-  notes = notes.filter(person => person.id !== id);
+  notes = notes.filter(note => note.id !== id);
 
   response.status(204).end();
 });
@@ -79,7 +96,7 @@ app.post('/api/notes', (request, response) => {
 
 
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
